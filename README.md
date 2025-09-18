@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="images/title.png" alt="ProdReader" width="75%">
+  <img src="images/title.png" alt="ProdReader" width="50%">
 </div>
 
 
