@@ -3,7 +3,6 @@
 </div>
 
 
-
 # Nintendo Switch PRODINFO Analyzer
 
 A GUI application for reading decrypted Nintendo Switch PRODINFO files and extracting console identification information.
@@ -29,7 +28,7 @@ The Nintendo Switch PRODINFO Analyzer is a comprehensive tool that allows you to
 - Windows operating system
 - No manual installations required - everything is handled automatically!
 
-## 🚀 Quick Start
+## Quick Start
 
 **Super Easy Installation - Just One Click!**
 
@@ -42,16 +41,16 @@ The Nintendo Switch PRODINFO Analyzer is a comprehensive tool that allows you to
 That's it! No manual Python installation, no dependency management, no command line needed.
 
 
-## 🖥️ System Compatibility
+## System Compatibility
 
 - **Windows 7/8/10/11** (32-bit and 64-bit)
 - **No administrator rights required** for basic operation
 - **Portable**: Can run from any folder location
 
 
-⚠️ **Important**: Only **decrypted** PRODINFO files are supported. Encrypted files will be rejected.
+**Important**: Only **decrypted** PRODINFO files are supported. Encrypted files will be rejected.
 
-## 🎯 Usage
+## Usage
 
 1. **Launch the Application**:
    - Simply double-click `ProdinfoReader.exe`
@@ -184,6 +183,10 @@ This project is provided as-is for educational and legitimate console analysis p
 - [SwitchBrew Documentation](https://switchbrew.org/wiki/Calibration)
 - Nintendo Switch Hardware Research Community
 - Various homebrew development resources
+
+---
+
+**Disclaimer**: This tool is for educational and research purposes only. The authors are not responsible for any misuse or damage resulting from the use of this software.
 
 ---
 
