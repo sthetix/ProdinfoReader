@@ -5,6 +5,9 @@ releases/
 *.7z
 *.tar.gz
 
+# Executable files
+*.exe
+
 # Python
 __pycache__/
 *.py[cod]
@@ -56,4 +59,4 @@ desktop.ini
 # Temporary files
 *.tmp
 *.temp
-~ 
+~*
