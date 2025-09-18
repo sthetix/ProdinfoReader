@@ -1,3 +1,9 @@
+<div align="center">
+  <img src="images/title.png" alt="ProdReader" width="75%">
+</div>
+
+
+
 # Nintendo Switch PRODINFO Analyzer
 
 A GUI application for reading decrypted Nintendo Switch PRODINFO files and extracting console identification information.
