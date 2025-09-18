@@ -10,7 +10,7 @@ A GUI application for reading decrypted Nintendo Switch PRODINFO files and extra
 
 ## Overview
 
-The Nintendo Switch PRODINFO Analyzer is a comprehensive tool that allows you to examine the internal calibration data of Nintendo Switch consoles. This application provides detailed information about your console's hardware components, network identifiers, color scheme, and validation status.
+The Nintendo Switch PRODINFO Reader is a comprehensive tool that allows you to examine the internal calibration data of Nintendo Switch consoles. This application provides detailed information about your console's hardware components, network identifiers, color scheme, and validation status.
 
 ## Features
 
@@ -24,12 +24,12 @@ The Nintendo Switch PRODINFO Analyzer is a comprehensive tool that allows you to
 - **Modern Dark Theme**: Professional grey color scheme
 
 
-## 📋 Requirements
+## Requirements
 
 - Windows operating system
 - No manual installations required - everything is handled automatically!
 
-## 🚀 Quick Start
+## Quick Start
 
 **Super Easy Installation - Just One Click!**
 
@@ -42,21 +42,21 @@ The Nintendo Switch PRODINFO Analyzer is a comprehensive tool that allows you to
 That's it! No manual Python installation, no dependency management, no command line needed.
 
 
-## 🖥️ System Compatibility
+## System Compatibility
 
 - **Windows 7/8/10/11** (32-bit and 64-bit)
 - **No administrator rights required** for basic operation
 - **Portable**: Can run from any folder location
 
 
-⚠️ **Important**: Only **decrypted** PRODINFO files are supported. Encrypted files will be rejected.
+**Important**: Only **decrypted** PRODINFO files are supported. Encrypted files will be rejected.
 
-## 🎯 Usage
+## Usage
 
 1. **Launch the Application**:
    - Simply double-click `ProdinfoReader.exe`
    - Wait for automatic setup to complete (first run only)
-   - The analyzer will open automatically
+   - The Reader will open automatically
 
 2. **Select Your File**:
    - Click "Select PRODINFO File (.bin/.dec)"
@@ -115,7 +115,7 @@ That's it! No manual Python installation, no dependency management, no command l
 
 ## Console Model Detection
 
-The analyzer can identify the following Nintendo Switch models:
+The Reader can identify the following Nintendo Switch models:
 
 | Model ID | Console Type | Description |
 |----------|--------------|-------------|
