@@ -23,7 +23,7 @@ The Nintendo Switch PRODINFO Analyzer is a comprehensive tool that allows you to
 - **Modern Dark Theme**: Professional grey color scheme
 
 
-## 📋 Requirements
+## Requirements
 
 - Windows operating system
 - No manual installations required - everything is handled automatically!
