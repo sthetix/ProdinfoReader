@@ -1,0 +1,13 @@
+# Edit .gitignore to exclude releases folder
+echo releases/ > .gitignore
+
+# Add and commit the updated .gitignore
+git add .gitignore
+git commit -m "Update .gitignore to exclude releases folder"
+
+# Now commit your README changes
+git add README.md
+git commit -m "Update README.md"
+
+# Push everything
+git push origin main
