@@ -16,13 +16,16 @@ import os
 class SwitchPRODINFOAnalyzer:
     def __init__(self, root):
         self.root = root
-        self.root.title("Prodinfo Reader v1.0.0")
+        self.root.title("Prodinfo Reader v1.0.1")
         self.root.geometry("600x650")
         self.root.configure(bg='#2d2d2d')
         self.root.resizable(True, True)
-        
+
         # Style configuration
         self.setup_styles()
+
+        # Create right-click menu for copying
+        self.create_context_menu()
         
         # Data storage for report generation
         self.analysis_data = {}
@@ -101,7 +104,124 @@ class SwitchPRODINFOAnalyzer:
         style.configure('TNotebook', background=bg_primary, borderwidth=0)
         style.configure('TNotebook.Tab', background=bg_secondary, foreground=text_primary, padding=[12, 6])
         style.map('TNotebook.Tab', background=[('selected', accent_color)])
-        
+
+    def create_context_menu(self):
+        """Create right-click context menu for copying tab content"""
+        self.context_menu = tk.Menu(self.root, tearoff=0, bg='#3d3d3d', fg='#e0e0e0',
+                                    activebackground='#6d6d6d', activeforeground='#e0e0e0')
+        self.context_menu.add_command(label="Copy Tab Content", command=self.copy_current_tab)
+
+    def copy_current_tab(self):
+        """Copy current tab content to clipboard"""
+        if not self.analysis_data:
+            return
+
+        current_tab = self.notebook.select()
+        if not current_tab:
+            return
+
+        tab_index = self.notebook.index(current_tab)
+        content = self.get_tab_content(tab_index)
+
+        self.root.clipboard_clear()
+        self.root.clipboard_append(content)
+        self.root.update()
+
+    def get_tab_content(self, tab_index):
+        """Get formatted content for a specific tab"""
+        tab_names = ["Overview", "Network & IDs", "Hardware", "Colors & Design", "Raw Data", "Validation"]
+        tab_name = tab_names[tab_index] if tab_index < len(tab_names) else "Unknown"
+
+        if not self.analysis_data:
+            return f"=== {tab_name} ===\nNo data loaded."
+
+        data = self.analysis_data['extracted']
+        validation = self.analysis_data['validation']
+        file_info = self.analysis_data['file_info']
+
+        lines = [f"=== {tab_name} ===", ""]
+
+        if tab_index == 0:  # Overview
+            lines.append(f"Magic Number: {data.get('magic', 'N/A')}")
+            lines.append(f"Version: 0x{data.get('version', 0):08X}")
+            lines.append(f"Body Size: 0x{data.get('body_size', 0):08X} ({data.get('body_size', 0):,} bytes)")
+            lines.append(f"Header Model: 0x{data.get('header_model', 0):04X}")
+            product_model = data.get('product_model', 0)
+            console_type = self.product_models.get(product_model, 'Unknown')
+            lines.append(f"Product Model: 0x{product_model:08X} ({console_type})")
+            lines.append(f"Serial Number: {data.get('serial', 'N/A')}")
+            lines.append(f"Update Count: {data.get('update_count', 0)}")
+
+        elif tab_index == 1:  # Network & IDs
+            lines.append(f"WLAN MAC Address: {data.get('wlan_mac', 'N/A')}")
+            lines.append(f"Bluetooth Address: {data.get('bt_address', 'N/A')}")
+            lines.append(f"Region Code: 0x{data.get('region', 0):08X}")
+            lines.append(f"Color Variation: 0x{data.get('color_var', 0):08X}")
+            lines.append(f"Color Model: 0x{data.get('color_model', 0):08X}")
+
+        elif tab_index == 2:  # Hardware
+            lcd_vendor = self.lcd_vendors.get(data.get('lcd_vendor', 0), f"Unknown (0x{data.get('lcd_vendor', 0):02X})")
+            lines.append(f"LCD Vendor: {lcd_vendor}")
+            lines.append(f"LCD Model: 0x{data.get('lcd_model', 0):02X}")
+            board_type = self.board_types.get(data.get('lcd_board', 0), f"Unknown (0x{data.get('lcd_board', 0):02X})")
+            lines.append(f"Board Type: {board_type}")
+            lines.append(f"Battery Lot: {data.get('battery_lot', 'N/A')}")
+            battery_ver = self.battery_versions.get(data.get('battery_version', 0), f"Unknown (0x{data.get('battery_version', 0):02X})")
+            lines.append(f"Battery Version: {battery_ver}")
+            analog_l = self.analog_stick_types.get(data.get('analog_l', 0), f"Unknown (0x{data.get('analog_l', 0):02X})")
+            lines.append(f"Left Analog Stick: {analog_l}")
+            analog_r = self.analog_stick_types.get(data.get('analog_r', 0), f"Unknown (0x{data.get('analog_r', 0):02X})")
+            lines.append(f"Right Analog Stick: {analog_r}")
+            six_axis = self.six_axis_sensors.get(data.get('six_axis', 0), f"Unknown (0x{data.get('six_axis', 0):02X})")
+            lines.append(f"6-Axis Sensor: {six_axis}")
+            six_axis_mount = self.six_axis_mount_types.get(data.get('six_axis_mount', 0), f"Unknown (0x{data.get('six_axis_mount', 0):02X})")
+            lines.append(f"6-Axis Mount Type: {six_axis_mount}")
+            touch_ic = self.touch_ic_vendors.get(data.get('touch_ic', 0), f"Unknown (0x{data.get('touch_ic', 0):02X})")
+            lines.append(f"Touch IC Vendor: {touch_ic}")
+            lines.append(f"USB Type-C Power: Version {data.get('usb_power', 0)}")
+
+        elif tab_index == 3:  # Colors & Design
+            lines.append(f"Housing Sub Color: {data.get('housing_sub', 'N/A')}")
+            lines.append(f"Housing Bezel Color: {data.get('housing_bezel', 'N/A')}")
+            lines.append(f"Housing Main Color 1: {data.get('housing_main1', 'N/A')}")
+            lines.append(f"Housing Main Color 2: {data.get('housing_main2', 'N/A')}")
+            lines.append(f"Housing Main Color 3: {data.get('housing_main3', 'N/A')}")
+
+        elif tab_index == 4:  # Raw Data
+            lines.append("Raw PRODINFO Data (First 1024 bytes):")
+            lines.append("-" * 70)
+            if self.file_path:
+                try:
+                    with open(self.file_path, 'rb') as f:
+                        raw_data = f.read()[:1024]
+                        for i in range(0, len(raw_data), 16):
+                            chunk = raw_data[i:i+16]
+                            hex_part = ' '.join(f'{b:02X}' for b in chunk)
+                            ascii_part = ''.join(chr(b) if 32 <= b <= 126 else '.' for b in chunk)
+                            lines.append(f'{i:08X}: {hex_part:<47} |{ascii_part}|')
+                except Exception:
+                    lines.append("Unable to read raw data")
+
+        elif tab_index == 5:  # Validation
+            lines.append("PRODINFO FILE VALIDATION")
+            lines.append("-" * 50)
+            lines.append(f"Magic: {'PASS' if validation['magic_valid'] else 'FAIL'}")
+            lines.append(f"Body Size: {'PASS' if validation['size_valid'] else 'WARN'}")
+            lines.append(f"Body Hash: {'PASS' if validation['hash_valid'] else 'FAIL'}")
+            lines.append(f"Console Type: {validation['console_type']}")
+            lines.append(f"File Size: {validation['file_size']:,} bytes")
+            lines.append(f"Calibration Data Size: {validation['cal_size']:,} bytes")
+            lines.append(f"Analysis Timestamp: {file_info['timestamp']}")
+
+        return '\n'.join(lines)
+
+    def show_context_menu(self, event):
+        """Show context menu on right-click"""
+        try:
+            self.context_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.context_menu.grab_release()
+
     def create_widgets(self):
         """Create the compact GUI interface"""
         # Header frame - more compact
@@ -116,10 +236,14 @@ class SwitchPRODINFOAnalyzer:
         # File selection frame - compact
         file_frame = tk.Frame(self.root, bg='#2d2d2d')
         file_frame.pack(fill='x', padx=15, pady=10)
-        
-        select_btn = ttk.Button(file_frame, text="Select PRODINFO File (.bin/.dec)", 
-                               command=self.select_file, width=30)
+
+        select_btn = ttk.Button(file_frame, text="Select PRODINFO File",
+                               command=self.select_file, width=25)
         select_btn.pack(side='left', padx=(0, 10))
+
+        save_btn = ttk.Button(file_frame, text="Save Report as Text",
+                             command=self.save_report, width=20)
+        save_btn.pack(side='left', padx=(0, 10))
         
         self.file_label = tk.Label(file_frame, text="No file selected", 
                                   bg='#2d2d2d', fg='#b0b0b0', font=('Segoe UI', 9))
@@ -138,30 +262,26 @@ class SwitchPRODINFOAnalyzer:
         self.setup_validation_tab()
         
     def setup_overview_tab(self):
-        """Setup the overview tab with save button"""
+        """Setup the overview tab"""
         self.overview_frame = tk.Frame(self.notebook, bg='#2d2d2d')
         self.notebook.add(self.overview_frame, text="Overview")
-        
-        # Save button at top
-        save_frame = tk.Frame(self.overview_frame, bg='#2d2d2d')
-        save_frame.pack(fill='x', padx=20, pady=10)
-        
-        save_btn = ttk.Button(save_frame, text="Save Complete Report", 
-                             command=self.save_report, width=25)
-        save_btn.pack(anchor='w')
-        
+
         # Create scrollable content
         canvas = tk.Canvas(self.overview_frame, bg='#2d2d2d', highlightthickness=0)
         scrollbar = ttk.Scrollbar(self.overview_frame, orient="vertical", command=canvas.yview)
         content_frame = tk.Frame(canvas, bg='#2d2d2d')
-        
+
         content_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=content_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
-        
+
+        # Bind right-click to canvas and content frame
+        canvas.bind("<Button-3>", self.show_context_menu)
+        content_frame.bind("<Button-3>", self.show_context_menu)
+
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-        
+
         # Overview fields
         self.overview_labels = {}
         overview_fields = [
@@ -173,7 +293,7 @@ class SwitchPRODINFOAnalyzer:
             ("Serial Number", "serial"),
             ("Update Count", "update_count")
         ]
-        
+
         for i, (label_text, key) in enumerate(overview_fields):
             self.create_info_row(content_frame, i, label_text, key, self.overview_labels)
     
@@ -181,18 +301,22 @@ class SwitchPRODINFOAnalyzer:
         """Setup the network & IDs tab"""
         self.network_frame = tk.Frame(self.notebook, bg='#2d2d2d')
         self.notebook.add(self.network_frame, text="Network & IDs")
-        
+
         canvas = tk.Canvas(self.network_frame, bg='#2d2d2d', highlightthickness=0)
         scrollbar = ttk.Scrollbar(self.network_frame, orient="vertical", command=canvas.yview)
         content_frame = tk.Frame(canvas, bg='#2d2d2d')
-        
+
         content_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=content_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
-        
+
+        # Bind right-click
+        canvas.bind("<Button-3>", self.show_context_menu)
+        content_frame.bind("<Button-3>", self.show_context_menu)
+
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-        
+
         self.network_labels = {}
         network_fields = [
             ("WLAN MAC Address", "wlan_mac"),
@@ -201,7 +325,7 @@ class SwitchPRODINFOAnalyzer:
             ("Color Variation", "color_var"),
             ("Color Model", "color_model")
         ]
-        
+
         for i, (label_text, key) in enumerate(network_fields):
             self.create_info_row(content_frame, i, label_text, key, self.network_labels)
     
@@ -209,18 +333,22 @@ class SwitchPRODINFOAnalyzer:
         """Setup the hardware tab"""
         self.hardware_frame = tk.Frame(self.notebook, bg='#2d2d2d')
         self.notebook.add(self.hardware_frame, text="Hardware")
-        
+
         canvas = tk.Canvas(self.hardware_frame, bg='#2d2d2d', highlightthickness=0)
         scrollbar = ttk.Scrollbar(self.hardware_frame, orient="vertical", command=canvas.yview)
         content_frame = tk.Frame(canvas, bg='#2d2d2d')
-        
+
         content_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=content_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
-        
+
+        # Bind right-click
+        canvas.bind("<Button-3>", self.show_context_menu)
+        content_frame.bind("<Button-3>", self.show_context_menu)
+
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-        
+
         self.hardware_labels = {}
         hardware_fields = [
             ("LCD Vendor", "lcd_vendor"),
@@ -235,7 +363,7 @@ class SwitchPRODINFOAnalyzer:
             ("Touch IC Vendor", "touch_ic"),
             ("USB Type-C Power", "usb_power")
         ]
-        
+
         for i, (label_text, key) in enumerate(hardware_fields):
             self.create_info_row(content_frame, i, label_text, key, self.hardware_labels)
     
@@ -243,18 +371,22 @@ class SwitchPRODINFOAnalyzer:
         """Setup the colors & design tab"""
         self.colors_frame = tk.Frame(self.notebook, bg='#2d2d2d')
         self.notebook.add(self.colors_frame, text="Colors & Design")
-        
+
         canvas = tk.Canvas(self.colors_frame, bg='#2d2d2d', highlightthickness=0)
         scrollbar = ttk.Scrollbar(self.colors_frame, orient="vertical", command=canvas.yview)
         content_frame = tk.Frame(canvas, bg='#2d2d2d')
-        
+
         content_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=content_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
-        
+
+        # Bind right-click
+        canvas.bind("<Button-3>", self.show_context_menu)
+        content_frame.bind("<Button-3>", self.show_context_menu)
+
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-        
+
         self.colors_labels = {}
         colors_fields = [
             ("Housing Sub Color", "housing_sub"),
@@ -263,7 +395,7 @@ class SwitchPRODINFOAnalyzer:
             ("Housing Main Color 2", "housing_main2"),
             ("Housing Main Color 3", "housing_main3")
         ]
-        
+
         for i, (label_text, key) in enumerate(colors_fields):
             self.create_info_row(content_frame, i, label_text, key, self.colors_labels)
     
@@ -271,33 +403,41 @@ class SwitchPRODINFOAnalyzer:
         """Setup the raw data tab"""
         self.raw_frame = tk.Frame(self.notebook, bg='#2d2d2d')
         self.notebook.add(self.raw_frame, text="Raw Data")
-        
+
         label_frame = tk.Frame(self.raw_frame, bg='#2d2d2d')
         label_frame.pack(fill='x', padx=15, pady=(15, 8))
-        
-        tk.Label(label_frame, text="Raw PRODINFO Data (First 1024 bytes):", 
+
+        tk.Label(label_frame, text="Raw PRODINFO Data (First 1024 bytes):",
                 font=('Segoe UI', 10, 'bold'), fg='#b0b0b0', bg='#2d2d2d').pack(anchor='w')
-        
+
         self.raw_text = scrolledtext.ScrolledText(self.raw_frame, height=25, width=100,
-                                                 bg='#1d1d1d', fg='#c0c0c0', 
+                                                 bg='#1d1d1d', fg='#c0c0c0',
                                                  font=('Consolas', 8), insertbackground='#c0c0c0')
         self.raw_text.pack(fill='both', expand=True, padx=15, pady=(0, 15))
-    
+
+        # Bind right-click to show context menu
+        self.raw_text.bind("<Button-3>", self.show_context_menu)
+        self.raw_frame.bind("<Button-3>", self.show_context_menu)
+
     def setup_validation_tab(self):
         """Setup the validation tab"""
         self.validation_frame = tk.Frame(self.notebook, bg='#2d2d2d')
         self.notebook.add(self.validation_frame, text="Validation")
-        
+
         label_frame = tk.Frame(self.validation_frame, bg='#2d2d2d')
         label_frame.pack(fill='x', padx=15, pady=(15, 8))
-        
-        tk.Label(label_frame, text="File Validation Results:", 
+
+        tk.Label(label_frame, text="File Validation Results:",
                 font=('Segoe UI', 10, 'bold'), fg='#b0b0b0', bg='#2d2d2d').pack(anchor='w')
-        
+
         self.validation_text = scrolledtext.ScrolledText(self.validation_frame, height=25, width=100,
-                                                        bg='#1d1d1d', fg='#e0e0e0', 
+                                                        bg='#1d1d1d', fg='#e0e0e0',
                                                         font=('Consolas', 9), insertbackground='#e0e0e0')
         self.validation_text.pack(fill='both', expand=True, padx=15, pady=(0, 15))
+
+        # Bind right-click to show context menu
+        self.validation_text.bind("<Button-3>", self.show_context_menu)
+        self.validation_frame.bind("<Button-3>", self.show_context_menu)
     
     def create_info_row(self, parent, row, label_text, key, label_dict):
         """Create a compact info row"""
